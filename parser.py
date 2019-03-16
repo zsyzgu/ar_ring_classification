@@ -1,19 +1,8 @@
 import os
 import numpy as np
 import math
-
-'''
-def parseFrame(imu, frames, j):
-    factors = imu[j]
-    for k in range(1, len(frames)):
-        if (int(frames[k][0]) >= int(imu[j][0])):
-            t = (float)(int(frames[k][0]) - int(imu[j][0])) / (float)(int(frames[k][0]) - int(frames[k - 1][0]))
-            v0 = np.array([float(v) for v in frames[k - 1]])
-            v1 = np.array([float(v) for v in frames[k]])
-            v = v0 * t + v1 * (1.0 - t)
-            factors.extend(v)
-            break
-    return factors'''
+import utils
+import random
 
 def parseFrames(imu, frames, j):
     factors_list = []
@@ -108,7 +97,7 @@ def parseDir(dir):
             if (key == -1): # no hand data
                 continue
 
-            key = min(key + 2, len(factors_list))
+            key = min(key, len(factors_list))
 
             factors = factors_list[key]
 
@@ -117,7 +106,6 @@ def parseDir(dir):
                 continue
             
             cnt = cnt + 1
-
 
             fout.write(str(i))
             for v in factors:
@@ -134,18 +122,86 @@ def parseDir(dir):
                 fout_ext.write('\n')
 
         print i, cnt
-            
 
+def positive_parser():
+    rootdir = './data/'
+    list = os.listdir(rootdir)
+    for i in range(0,len(list)):
+        path = os.path.join(rootdir,list[i])
+        if os.path.isdir(path):
+            if ((list[i] + '.txt') in list and (list[i] + '.ext') in list):
+                continue
+            status, name, ring = utils.get_file_info(list[i])
+            #if (name == 'xcn' and ring == 'middle1' and status == 'horizontal'):
+            parseDir(path)
 
-rootdir = './data/'
-list = os.listdir(rootdir)
-for i in range(0,len(list)):
-    path = os.path.join(rootdir,list[i])
-    if os.path.isdir(path):
-        if ((list[i] + '.txt') in list and (list[i] + '.ext') in list):
-            continue
-        status = list[i].split('.')[0].split('_')[0]
-        name = list[i].split('.')[0].split('_')[1]
-        ring = list[i].split('.')[0].split('_')[2]
-        #if (name == 'xcn' and ring == 'middle1' and status == 'horizontal'):
-        parseDir(path)
+def parseNegative(path):
+    input = open(path, 'r')
+    lines = input.readlines()
+    fout_ext = open(path[:-3] + 'ext', 'w')
+
+    imu = []
+    for line in lines:
+        line = line.strip('\n')
+        tags = line.split()
+        imu.append(tags)
+
+    length = len(imu)
+
+    left_gap = 500
+    right_gap = 100
+    samples = 500
+    s = 0
+
+    while (s < samples):
+        j = random.randint(left_gap, length - right_gap - 1)
+
+        i = j
+        while (i > 0 and int(imu[j][0]) - int(imu[i][0]) < left_gap):
+            i = i - 1
+        begin_j = i
+        i = j
+        while (i + 1 < len(imu) and int(imu[i][0]) - int(imu[j][0]) < right_gap):
+            i = i + 1
+        end_j = i
+        
+        factors_list = []
+        key = j - begin_j
+        flag = True
+        for i in range(begin_j, end_j + 1):
+            for v in imu[i]:
+                if (math.isnan(float(v))):
+                    print 'no imu data'
+                    flag = False
+            factors = [v for v in imu[i]]
+            factors_list.append(factors)
+        
+        tmp = np.array(factors_list).reshape(len(factors_list), -1)
+        for i in range(2, np.size(tmp, 1) - 1):
+            x = [float(v) for v in tmp[:,i]]
+            if (np.var(x) == 0):
+                flag = False
+
+        if (flag == True):
+            s = s + 1
+
+            fout_ext.write(str(-1) + ' ' + str(len(factors_list)) + ' ' + str(key) + '\n')
+            for factors in factors_list:
+                fout_ext.write(str(factors[0]))
+                for k in range(1, len(factors)):
+                    fout_ext.write(' ')
+                    fout_ext.write(str(factors[k]))
+                fout_ext.write('\n')
+
+def negative_parser():
+    rootdir = './negative'
+    list = os.listdir(rootdir)
+    for i in range(0,len(list)):
+        path = os.path.join(rootdir,list[i])
+        if (os.path.isfile(path) and list[i][-3:] == 'txt'):
+            if ((list[i][:-3] + '.ext') in list):
+                continue
+            parseNegative(path)
+
+positive_parser()
+#negative_parser()
