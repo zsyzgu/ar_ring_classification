@@ -73,9 +73,9 @@ def draw_label():
                 gra_z[j] = gra[2]
             
             if (forbiden[i] == 0):
-                plt.plot(acc_x)
-                plt.plot(acc_y)
-                plt.plot(acc_z)
+                plt.plot(gyr_x)
+                plt.plot(gyr_y)
+                plt.plot(gyr_z)
                 plt.vlines(info[i][5], -5, 5, colors='r')
     
     plt.show()
@@ -125,7 +125,7 @@ for i in range(0,len(list)):
     path = os.path.join(rootdir,list[i])
     if os.path.isfile(path) and list[i].split('.')[-1] == 'ext':
         status, name, ring = utils.get_file_info(list[i])
-        if (status == 'horizontal' and ring == 'index1' and name == 'gyz'):
+        if (name == 'cxs' and ring == 'middle3' and status == 'vertical'):
             info, data = utils.input([path])
             illustration()
             output()

@@ -132,8 +132,8 @@ def positive_parser():
             if ((list[i] + '.txt') in list and (list[i] + '.ext') in list):
                 continue
             status, name, ring = utils.get_file_info(list[i])
-            #if (name == 'xcn' and ring == 'middle1' and status == 'horizontal'):
-            parseDir(path)
+            if (name == 'xcy' and ring == 'ring1' and status == 'vertical'):
+                parseDir(path)
 
 def parseNegative(path):
     input = open(path, 'r')
@@ -150,7 +150,7 @@ def parseNegative(path):
 
     left_gap = 500
     right_gap = 100
-    samples = 500
+    samples = 170
     s = 0
 
     while (s < samples):
@@ -203,5 +203,5 @@ def negative_parser():
                 continue
             parseNegative(path)
 
-positive_parser()
-#negative_parser()
+#positive_parser()
+negative_parser()

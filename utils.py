@@ -23,6 +23,7 @@ def input(file_set, cut_l = -1, cut_r = -1):
         i = 0
         while (i < len(lines)):
             tags = lines[i].split()
+            #print name, tags
             label, length, key = int(tags[0]), int(tags[1]), int(tags[2])
             info.append([status, name, ring, label, length, key])
             
