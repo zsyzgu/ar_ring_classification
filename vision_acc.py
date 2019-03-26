@@ -45,6 +45,7 @@ def evaluate(file):
     fin = open(file, 'r')
     lines = fin.readlines()
 
+    file_acc = []
     for label in range(0, 10):
         min_zs = []
         for line in lines:
@@ -67,9 +68,12 @@ def evaluate(file):
         for i in min_zs:
             zs = min_zs - i
             acc = max(acc, float(len([1 for v in zs if 0 < v and v < 10])) / len(zs))
-        accs.append(acc)
+        file_acc.append(acc)
 
         print file, label, acc
+    
+    file_acc = np.array(file_acc)
+    accs.append(np.mean(file_acc))
 
 rootdir = './data/'
 list = os.listdir(rootdir)
@@ -78,8 +82,8 @@ for i in range(0,len(list)):
     path = os.path.join(rootdir,list[i])
     if os.path.isfile(path) and list[i].split('.')[-1] == 'txt':
         status, name, ring = utils.get_file_info(list[i])
-        if (status == 'horizontal' and ring == 'index1'):
+        if (status == 'vertical' and ring == 'index1'):
             evaluate(path)
         
 accs = np.array(accs)
-print("Precision: %0.2f (+/- %0.2f)" % (accs.mean(), accs.std() * 2))
+print("Precision: %0.3f(%0.3f)" % (accs.mean(), accs.std()))

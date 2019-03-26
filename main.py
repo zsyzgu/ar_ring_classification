@@ -48,8 +48,8 @@ def caln_Xy(X_imu, line):
 
     y = int(tags[0])
     #y_trans = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] # 10 classes
-    y_trans = [0, 1, 2, 3, -1, -1, 6, 7, -1, 9] # 7 classes
-    #y_trans = [0, 1, -1, 3, -1, -1, -1, 7, -1, -1] # 4 classes
+    #y_trans = [0, 1, 2, 3, -1, -1, 6, 7, -1, 9] # 7 classes
+    y_trans = [0, 1, -1, 3, -1, -1, -1, 7, -1, -1] # 4 classes
     y = y_trans[y]
     
     #X = [v for v in X_imu]
@@ -120,11 +120,11 @@ for i in range(0,len(list)):
     path = os.path.join(rootdir,list[i])
     if os.path.isfile(path) and list[i].split('.')[-1] == 'txt':
         status, name, ring = utils.get_file_info(list[i])
-        if (status == 'vertical'):# and ring == 'index1'):
+        if (status == 'horizontal'):# and ring == 'index1'):
             file_set.append(path)
             ext_set.append(path[:-3] + 'ext')
 
-info, data = utils.input(ext_set, 7, 2) # 10 frames
+info, data = utils.input(ext_set, 5, 4) # 10 frames
 features = event.caln_features(info, data)
 evaluate(file_set, features)
 
